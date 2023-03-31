@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+djangorestframework = "*"
+drf-yasg = "*"
+psycopg2-binary = "*"
+drf-access-policy = "*"
+qrcode = "*"
+python-dotenv = "==0.19.0"
+django-cors-headers = "*"
+transliterate = "==1.10.2"
+whitenoise = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"

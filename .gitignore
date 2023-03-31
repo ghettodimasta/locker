@@ -1,0 +1,6 @@
+Pipfile.lock
+.env
+*/staticfiles
+*/templates
+*/static
+locker-back/.idea
