@@ -45,8 +45,6 @@ class ObtainAuthToken(APIView):
             params['max_age'] = 946080000
 
         response.set_cookie('access_token', token, httponly=True, secure=settings.ACCESS_TOKEN_COOKIE_SECURE, **params)
-        print(response.cookies)
-        print(response)
         return response
 
 
