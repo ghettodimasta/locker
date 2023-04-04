@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.core.validators import RegexValidator
@@ -161,8 +162,6 @@ class StoragePoi(models.Model):
             address_clean=address_clean,
             point=new_point,
         )
-        from icecream import ic
-        ic(params)
 
         if do_save:
             update_fields(self, **params)
@@ -173,4 +172,44 @@ class StoragePoi(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['name', 'user'], name='uniq_name_user_is_active')
+        ]
+
+
+class Order(models.Model):
+
+    ORDER_STATUS_CHOICES = (
+        ("created", "Создан"),
+        ("canceled", "Отменен"),
+        ("checked_in", "Заселен"),
+        ("checked_out", "Выселен"),
+    )
+
+    PAYMENT_TYPE_CHOICES = (
+        ("debit", "Дебетовая карта"),
+        ("sbp", "СБП")
+    )
+
+    status = models.CharField(max_length=100, choices=ORDER_STATUS_CHOICES, default='created')
+
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    storage_poi = models.ForeignKey(StoragePoi, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    bags = models.PositiveIntegerField(default=1)
+    check_in = models.DateTimeField(null=True, blank=True)
+    check_out = models.DateTimeField(null=True, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    payment_type = models.CharField(max_length=100, choices=PAYMENT_TYPE_CHOICES, default='debit')
+    is_active = models.BooleanField(default=True, db_index=True)
+
+    @property
+    def check_url(self):
+        return f"127.0.0.1:8000/api/v1/check-order/" if settings.DEBUG else f"{os.getenv('DOMAIN_NAME')}/api/v1/check-order/"
+
+    def __str__(self):
+        return f"{self.id}: {self.user} - {self.storage_poi}"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'storage_poi'], name='uniq_user_storage_poi_is_active')
         ]

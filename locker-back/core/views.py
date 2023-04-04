@@ -1,18 +1,22 @@
 import logging
 
 from django.contrib.auth import get_user_model
+from django.http import HttpResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import parsers, permissions, renderers, status
 from rest_framework.authtoken.models import Token
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from dadata import Dadata
 
-from core.models import StoragePoi
-from core.serializers import AuthByEmailPasswordSerializer, StoragePoiSerializer, UserSerializer, CreateUserSerializer
+from core.models import StoragePoi, Order
+from core.serializers import AuthByEmailPasswordSerializer, StoragePoiSerializer, UserSerializer, CreateUserSerializer, \
+    OrderSerializer
 from locker import settings
+from locker.utils import generate_qr_code
 
 logger = logging.getLogger(__name__)
 
@@ -114,3 +118,29 @@ class UserViewSet(ModelViewSet):
         if self.action in ['create']:
             return CreateUserSerializer
         return UserSerializer
+
+
+class OrderViewSet(ModelViewSet):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
+
+    @action(detail=True, methods=['get'])
+    def qr(self):
+        order : Order = self.get_object()
+        return HttpResponse(generate_qr_code(order.check_url + order.id), content_type='image/png')
+
+
+class OrderCheckView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, order_id):
+        order = Order.objects.get(id=order_id)
+        order.status = 'checked_in'
+        order.save(update_fields=['status'])
+        return HttpResponse("ok")
+
+
+

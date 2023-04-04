@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated
 from transliterate.utils import _
 
-from core.models import StoragePoi, User
+from core.models import StoragePoi, User, Order
 from core.validators import MyMinimumLengthValidator, SymbolsCountValidator, ConditionValidator, \
     MixedRegistersValidator, EntirelyNumericValidator, CommonPasswordValidator
 from locker import settings
@@ -80,3 +80,22 @@ class CreateUserSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save(update_fields=['password'])
         return user
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    bags = serializers.IntegerField(min_value=1, max_value=10, required=True)
+    check_in = serializers.DateTimeField(required=True)
+    check_out = serializers.DateTimeField(required=True)
+
+    class Meta:
+        model = Order
+        fields = '__all__'
+        extra_kwargs = {
+            'user': {'write_only': True},
+            'storage': {'write_only': True},
+            'status': {'read_only': True},
+            'amount': {'read_only': True},
+            'is_active': {'read_only': True},
+            'payment_type': {'required': True},
+        }
