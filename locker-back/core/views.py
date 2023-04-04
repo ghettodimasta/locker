@@ -1,7 +1,6 @@
-from django.shortcuts import render
-from django.utils.decorators import method_decorator
 import logging
 
+from django.contrib.auth import get_user_model
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import parsers, permissions, renderers, status
@@ -12,10 +11,12 @@ from rest_framework.viewsets import ModelViewSet
 from dadata import Dadata
 
 from core.models import StoragePoi
-from core.serializers import AuthByEmailPasswordSerializer, StoragePoiSerializer
+from core.serializers import AuthByEmailPasswordSerializer, StoragePoiSerializer, UserSerializer, CreateUserSerializer
 from locker import settings
 
 logger = logging.getLogger(__name__)
+
+User = get_user_model()
 
 
 # Create your views here.
@@ -75,7 +76,6 @@ class StoragePoiViewSet(ModelViewSet):
 
 
 class AddressAutocomplete(APIView):
-
     permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
@@ -102,3 +102,15 @@ class AddressAutocomplete(APIView):
         except Exception as e:
             logger.exception(f"Dadata failed: {e}")
             return Response(data=dict(error=e))
+
+
+class UserViewSet(ModelViewSet):
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return User.objects.all()
+
+    def get_serializer_class(self):
+        if self.action in ['create']:
+            return CreateUserSerializer
+        return UserSerializer

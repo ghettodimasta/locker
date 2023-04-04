@@ -3,7 +3,10 @@ from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated
 from transliterate.utils import _
 
-from core.models import StoragePoi
+from core.models import StoragePoi, User
+from core.validators import MyMinimumLengthValidator, SymbolsCountValidator, ConditionValidator, \
+    MixedRegistersValidator, EntirelyNumericValidator, CommonPasswordValidator
+from locker import settings
 
 
 class AuthByEmailPasswordSerializer(serializers.Serializer):
@@ -40,3 +43,40 @@ class StoragePoiSerializer(serializers.ModelSerializer):
             'address_clean': {'read_only': True},
             'location': {'write_only': True},
         }
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'role')
+
+
+class CreateUserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
+    password = serializers.CharField(write_only=True, required=True,
+                                     validators=[MyMinimumLengthValidator(lambda: settings.MIN_PASSWORD_LENGTH),
+                                                 SymbolsCountValidator(settings.SPECIAL_PASSWORD_SYMBOLS,
+                                                                       lambda: settings.MIN_SPECIAL_PASSWORD_SYMBOLS_COUNT,
+                                                                       'special character'),
+                                                 SymbolsCountValidator(settings.DECIMAL_SYMBOLS,
+                                                                       lambda: settings.MIN_DIGITS_IN_PASSWORD_COUNT,
+                                                                       'digit'),
+                                                 ConditionValidator(
+                                                     lambda: settings.PASSWORD_DIFFERENT_REGISTER_MANDATORY,
+                                                     MixedRegistersValidator()),
+                                                 EntirelyNumericValidator(),
+                                                 CommonPasswordValidator()])
+
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'role', 'password')
+        extra_kwargs = {
+            'role': {'required': True},
+        }
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        password = validated_data['password']
+        user.set_password(password)
+        user.save(update_fields=['password'])
+        return user

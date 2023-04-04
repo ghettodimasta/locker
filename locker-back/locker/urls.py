@@ -32,6 +32,7 @@ schema_view = get_schema_view(
 )
 
 api_router = routers.DefaultRouter(trailing_slash=False)
+api_router.register(r'user', views.UserViewSet, basename='user')
 api_router.register(r'storage-poi', views.StoragePoiViewSet, basename='storage-poi')
 
 urlpatterns = [
