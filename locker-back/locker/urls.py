@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
-from rest_framework import permissions
+from rest_framework import permissions, routers
 
 from core import views
 
@@ -31,10 +31,15 @@ schema_view = get_schema_view(
     permission_classes=[permissions.AllowAny]
 )
 
+api_router = routers.DefaultRouter(trailing_slash=False)
+api_router.register(r'storage-poi', views.StoragePoiViewSet, basename='storage-poi')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/auth', views.ObtainAuthToken.as_view(), name='auth'),
     path('api/v1/logout', views.LogoutView.as_view(), name='logout'),
+    path('api/v1/', include(api_router.urls)),
+    path('api/v1/address-autocomplete', views.AddressAutocomplete.as_view(), name='address-autocomplete'),
     path('api-auth/', include('rest_framework.urls')),
     path('swagger', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]

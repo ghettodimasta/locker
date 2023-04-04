@@ -1,12 +1,21 @@
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
+import logging
+
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import parsers, permissions, renderers, status
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+from dadata import Dadata
 
-from core.serializers import AuthByEmailPasswordSerializer
+from core.models import StoragePoi
+from core.serializers import AuthByEmailPasswordSerializer, StoragePoiSerializer
 from locker import settings
+
+logger = logging.getLogger(__name__)
 
 
 # Create your views here.
@@ -55,3 +64,41 @@ class LogoutView(APIView):
         response = Response()
         response.delete_cookie('access_token')
         return response
+
+
+class StoragePoiViewSet(ModelViewSet):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = StoragePoiSerializer
+
+    def get_queryset(self):
+        return StoragePoi.objects.all()
+
+
+class AddressAutocomplete(APIView):
+
+    permission_classes = [permissions.AllowAny]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("q", openapi.IN_QUERY, description="address", type=openapi.TYPE_STRING,
+                              required=True),
+        ],
+    )
+    def get(self, request):
+        try:
+            with Dadata(settings.DADATA_TOKEN, settings.DADATA_SECRET) as dadata:
+                suggests = dadata.suggest(name="address", query=request.GET.get("q"))
+                results = [
+                    dict(
+                        value=suggest.get("unrestricted_value"),
+                        label=suggest.get("value"),
+                        lat=suggest.get("data").get("geo_lat"),
+                        lon=suggest.get("data").get("geo_lon"),
+                        city=suggest.get("data").get("city"),
+                    )
+                    for suggest in suggests
+                ]
+            return Response(results)
+        except Exception as e:
+            logger.exception(f"Dadata failed: {e}")
+            return Response(data=dict(error=e))

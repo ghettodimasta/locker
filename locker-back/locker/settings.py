@@ -26,7 +26,7 @@ AUTH_USER_MODEL = "core.User"
 SECRET_KEY = 'django-insecure-uva1s#g7^95@d0u9$q5s99-30eq0=!&*#ycm(vkc(j1tvlr@(d'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv('DEBUG', False) == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'locker.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         "NAME": os.environ["DATABASE_NAME"],
         "USER": os.environ["DATABASE_USER"],
         "PASSWORD": os.environ["DATABASE_PASSWORD"],
@@ -200,5 +200,8 @@ if DEBUG:
 
 SPECIAL_PASSWORD_SYMBOLS = '!?"\'#$%&()*+,.-/\\\[\]{}:;<>=@`~^|_'
 DECIMAL_SYMBOLS = '0123456789'
+
+DADATA_TOKEN = os.environ.get('DADATA_TOKEN')
+DADATA_SECRET = os.environ.get('DADATA_SECRET')
 
 ACCESS_TOKEN_COOKIE_SECURE = os.environ.get('ACCESS_TOKEN_COOKIE_SECURE', 'True') == 'True'

@@ -1,12 +1,16 @@
 import re
+import logging
+import django.contrib.auth.password_validation as pass_validation
 
 from django.contrib.auth.password_validation import MinimumLengthValidator
 from django.core.exceptions import ValidationError
 from django.utils.functional import SimpleLazyObject
 from django.utils.translation import gettext as _, ngettext
-import django.contrib.auth.password_validation as pass_validation
 from django.contrib.auth import get_user_model
+from dadata import Dadata
+from locker import settings
 
+logger = logging.getLogger(__name__)
 
 class MyMinimumLengthValidator(MinimumLengthValidator):
     def __init__(self, get_min_length):
@@ -82,3 +86,17 @@ class CommonPasswordValidator:
 
         if error:
             raise ValidationError(error, code='too_common_password_error')
+
+
+def address_validate(value):
+    try:
+        dadata = Dadata(settings.DADATA_TOKEN, settings.DADATA_SECRET)
+
+        res = dadata.clean(name="address", source=value)
+        logger.info(f"Address validation for {value}: {res}")
+    except Exception as e:
+        logger.exception("Dadata failed")
+        raise ValidationError(
+            f"Что-то пошло не так с dadata: {e}",
+            params={"value": value},
+        )

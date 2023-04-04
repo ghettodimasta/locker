@@ -3,6 +3,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated
 from transliterate.utils import _
 
+from core.models import StoragePoi
+
 
 class AuthByEmailPasswordSerializer(serializers.Serializer):
     email = serializers.CharField(label=_("email"), write_only=True, trim_whitespace=True, max_length=32)
@@ -26,3 +28,15 @@ class AuthByEmailPasswordSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class StoragePoiSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoragePoi
+        fields = '__all__'
+        extra_kwargs = {
+            'user': {'write_only': True},
+            'address': {'write_only': True},
+            'address_clean': {'read_only': True},
+            'location': {'write_only': True},
+        }

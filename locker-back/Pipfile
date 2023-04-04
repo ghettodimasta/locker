@@ -14,6 +14,8 @@ python-dotenv = "==0.19.0"
 django-cors-headers = "*"
 transliterate = "==1.10.2"
 whitenoise = "*"
+dadata = "*"
+django-model-utils = "*"
 
 [dev-packages]
 
