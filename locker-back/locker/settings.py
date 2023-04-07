@@ -29,6 +29,11 @@ SECRET_KEY = 'django-insecure-uva1s#g7^95@d0u9$q5s99-30eq0=!&*#ycm(vkc(j1tvlr@(d
 DEBUG = os.getenv('DEBUG', False) == 'True'
 
 ALLOWED_HOSTS = ['*']
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "https://localhost:3000",
+]
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -43,6 +48,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 STORAGES = {
@@ -208,4 +215,4 @@ PASSWORD_DIFFERENT_REGISTER_MANDATORY = False
 DADATA_TOKEN = os.environ.get('DADATA_TOKEN')
 DADATA_SECRET = os.environ.get('DADATA_SECRET')
 
-ACCESS_TOKEN_COOKIE_SECURE = os.environ.get('ACCESS_TOKEN_COOKIE_SECURE', 'True') == 'True'
+ACCESS_TOKEN_COOKIE_SECURE = os.environ.get('ACCESS_TOKEN_COOKIE_SECURE', 'False') == 'True'

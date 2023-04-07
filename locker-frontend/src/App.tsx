@@ -20,12 +20,11 @@ import {
   useRevalidator,
   useRouteError,
 } from "react-router-dom";
-import Popper from "popper.js";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 import './App.css';
 // import SideBar from "./components/AdminPanel/SideBar/SideBar";
-import PageNotFound from "./components/PageNotFound/PageNotFound";
+// import PageNotFound from "./components/PageNotFound/PageNotFound";
 import HomePage from "./components/HomePage/HomePage";
 
 
@@ -33,7 +32,6 @@ let router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
       <Route path="/" element={<HomePage/>}/>
-      <Route path="*" element={<PageNotFound/>}/>
     </Route>
   )
   // <Route path="/" element={<SideBar/>}>

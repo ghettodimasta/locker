@@ -52,13 +52,13 @@ class ObtainAuthToken(APIView):
         remember_me = data.pop('remember_me')
         token = Token.objects.get_or_create(user=user)[0]
 
-        response = Response()
+        response = Response(data=dict(id=user.id, email=user.email, role=user.role.id))
 
         params = dict()
         if remember_me:
             params['max_age'] = 946080000
 
-        response.set_cookie('access_token', token, httponly=True, secure=settings.ACCESS_TOKEN_COOKIE_SECURE, **params)
+        response.set_cookie('access_token', token, httponly=False, secure=settings.ACCESS_TOKEN_COOKIE_SECURE, **params)
         return response
 
 
@@ -118,6 +118,10 @@ class UserViewSet(ModelViewSet):
         if self.action in ['create']:
             return CreateUserSerializer
         return UserSerializer
+
+    @action(detail=False, methods=['get'])
+    def current(self, request):
+        return Response(UserSerializer(self.request.user).data)
 
 
 class OrderViewSet(ModelViewSet):
