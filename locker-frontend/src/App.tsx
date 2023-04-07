@@ -26,12 +26,14 @@ import './App.css';
 // import SideBar from "./components/AdminPanel/SideBar/SideBar";
 // import PageNotFound from "./components/PageNotFound/PageNotFound";
 import HomePage from "./components/HomePage/HomePage";
+import {Storage} from "./components/Storages/Storages";
 
 
 let router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
       <Route path="/" element={<HomePage/>}/>
+      <Route path="/storages" element={<Storage/>}/>
     </Route>
   )
   // <Route path="/" element={<SideBar/>}>

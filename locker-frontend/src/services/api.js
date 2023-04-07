@@ -24,4 +24,8 @@ export async function logout() {
   return await instance.post('/api/v1/logout');
 }
 
+export async function getStorages(city) {
+  return await instance.get(`/api/v1/storage-poi?city=${city}`);
+}
+
 export default instance;

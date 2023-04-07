@@ -10,6 +10,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
+import django_filters
 from dadata import Dadata
 
 from core.models import StoragePoi, Order
@@ -71,9 +73,19 @@ class LogoutView(APIView):
         return response
 
 
+class StoragePoiFilter(django_filters.FilterSet):
+    city = django_filters.CharFilter(lookup_expr='icontains', field_name='address_clean')
+
+    class Meta:
+        model = StoragePoi
+        fields = ['city']
+
+
 class StoragePoiViewSet(ModelViewSet):
     permission_classes = [permissions.AllowAny]
     serializer_class = StoragePoiSerializer
+    filterset_class = StoragePoiFilter
+    filter_backends = [DjangoFilterBackend]
 
     def get_queryset(self):
         return StoragePoi.objects.all()

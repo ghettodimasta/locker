@@ -6,9 +6,11 @@ import frame_2 from "../../assets/Frame 2.svg";
 import frame_3 from "../../assets/Frame 3.svg";
 import frame_4 from "../../assets/Frame 4.svg";
 import {Component} from "react";
+import {getStorages} from "../../services/api";
 
 type HomeState = {
   loader_active: boolean,
+  search_city: string
 };
 
 interface HomeProps {
@@ -19,7 +21,14 @@ class HomePage extends Component<HomeProps, HomeState> {
     super(props);
     this.state = {
       loader_active: false,
+      search_city: ''
     }
+  }
+
+  async search(city: string){
+    console.log(city)
+    console.log(this.state.search_city)
+    window.location.href = '/storages?city=' + city;
   }
 
   render() {
@@ -52,9 +61,16 @@ class HomePage extends Component<HomeProps, HomeState> {
                         <input type="text"
                                placeholder="Search for a city"
                                className="search-input"
+                               onChange={(e) => {
+                                  this.setState({search_city: e.target.value})
+                               }}
 
                         />
                         <button type="submit"
+                                onClick={async (e) => {
+                                  e.preventDefault();
+                                  await this.search(this.state.search_city);
+                                }}
                                 className="btn-search btn-primary btn-regular d-md-block d-none">
                           Search
                         </button>
