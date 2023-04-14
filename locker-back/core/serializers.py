@@ -98,4 +98,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'amount': {'read_only': True},
             'is_active': {'read_only': True},
             'payment_type': {'required': True},
+            'is_payed': {'read_only': True},
+            'form_url': {'read_only': True},
         }

@@ -2,11 +2,14 @@ import datetime
 import logging
 import os
 
+import icecream
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.core.validators import RegexValidator
-from django.db import models
+from django.db import models, transaction
 from django.contrib.gis.db import models as gis_models
 from django.contrib.gis.geos import Point
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from transliterate.utils import _
 
 from core.validators import address_validate
@@ -14,7 +17,7 @@ from locker import settings
 from dadata import Dadata
 from model_utils import FieldTracker
 
-from locker.utils import update_fields
+from locker.utils import update_fields, create_qiwi_from
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +84,6 @@ class User(AbstractBaseUser):
 
 
 class StoragePoi(models.Model):
-
     phone_regex = RegexValidator(
         regex=r'^\+?1?\d{9,15}$',
         message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."
@@ -176,7 +178,6 @@ class StoragePoi(models.Model):
 
 
 class Order(models.Model):
-
     ORDER_STATUS_CHOICES = (
         ("created", "Создан"),
         ("payed", "Оплачен"),
@@ -203,6 +204,8 @@ class Order(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     payment_type = models.CharField(max_length=100, choices=PAYMENT_TYPE_CHOICES, default='debit')
     is_active = models.BooleanField(default=True, db_index=True)
+    is_payed = models.BooleanField(default=False, db_index=True)
+    form_url = models.URLField(null=True, blank=True, max_length=500)
 
     @property
     def check_url(self):
@@ -215,3 +218,18 @@ class Order(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['user', 'storage_poi'], name='uniq_user_storage_poi_is_active')
         ]
+
+
+def __order_post_save(sender, instance, created, **kwargs):
+    instance.amount = instance.bags
+    if instance.payment_type == 'qiwi':
+        instance.form_url = create_qiwi_from(instance.id, instance.amount)
+
+    instance.save()
+
+
+@receiver(post_save, sender=Order)
+def order_post_save(sender, instance, created, **kwargs):
+    if created:
+        with transaction.atomic():
+            __order_post_save(sender, instance, created, **kwargs)

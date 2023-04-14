@@ -17,6 +17,9 @@ whitenoise = "*"
 dadata = "*"
 django-model-utils = "*"
 django-filter = "*"
+celery = "*"
+redis = "*"
+django-redis = "*"
 
 [dev-packages]
 

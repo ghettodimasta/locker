@@ -32,4 +32,8 @@ export async function getStorage(id) {
   return await instance.get(`/api/v1/storage-poi/${id}`);
 }
 
+export async function orderStorage(data){
+  return await instance.post(`/api/v1/order`, data);
+}
+
 export default instance;

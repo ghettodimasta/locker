@@ -1,6 +1,10 @@
+import datetime
+import os
+
 import qrcode
 from io import BytesIO
 
+import requests
 
 def update_fields(model, **kwargs):
     fields = list(kwargs.keys())
@@ -34,3 +38,22 @@ def generate_qr_code(address):
     buffer.seek(0)
 
     return buffer.getvalue()
+
+
+def create_qiwi_from(order_id, amount):
+    lifetime = datetime.datetime.now() + datetime.timedelta(minutes=30)
+    response = requests.get(
+        params=dict(
+            publicKey=os.environ['QIWI_TOKEN_PUBLIC'],
+            billId=order_id,
+            amount=amount,
+            email="customer@lockspot.com",
+            successUrl="http://localhost:3000",
+            customFields=dict(
+                paySourcesFilter="qw,card"
+            ),
+            lifetime=lifetime.isoformat()
+        ),
+        url=f"https://oplata.qiwi.com/create"
+    )
+    return response.url

@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import Navbar, {alert} from "../NavBar/NavBar";
-import {getStorage} from "../../services/api";
+import {getStorage, orderStorage} from "../../services/api";
 import "./StorageDetail.css";
 import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
@@ -9,6 +9,7 @@ import {TimePicker} from '@mui/x-date-pickers/TimePicker';
 import {Button, FormControl, FormLabel} from "@mui/material";
 import dayjs from "dayjs";
 import moment from "moment";
+import {redirect} from "react-router-dom";
 
 type StorageDetailState = {
   loader_active: boolean,
@@ -20,6 +21,10 @@ type StorageDetailState = {
 };
 
 interface StorageDetailProps {
+}
+
+interface Window {
+  QiwiCheckout: any;
 }
 
 export class StorageDetail extends Component<StorageDetailProps, StorageDetailState> {
@@ -41,27 +46,43 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
   }
 
   private checkAvailability(): boolean {
-  // Check if check_in is before check_out
-  if (this.state.check_in.isSameOrAfter(this.state.check_out)) {
-    return true;
+    // Check if check_in is before check_out
+    if (this.state.check_in.isSameOrAfter(this.state.check_out)) {
+      return true;
+    }
+
+    // Check if check_in is within storage's opening hours
+    const openingHours = moment(this.state.storage.opening_hours, 'HH:mm');
+
+    if (this.state.check_in.isBefore(openingHours)) {
+      return true;
+    }
+
+    // Check if check_out is within storage's closing hours
+    const closingHours = moment(this.state.storage.closing_hours, 'HH:mm');
+    if (this.state.check_out.isAfter(closingHours)) {
+      return true;
+    }
+
+    // Return true if all validations pass
+    return false;
   }
 
-  // Check if check_in is within storage's opening hours
-  const openingHours = moment(this.state.storage.opening_hours, 'HH:mm');
-
-  if (this.state.check_in.isBefore(openingHours)) {
-    return true;
+  private async bookStorage() {
+    const response = await orderStorage(
+      {
+        storage_poi: this.state.storage_id,
+        bags: this.state.bags,
+        check_in: this.state.check_in.toISOString(),
+        check_out: this.state.check_out.toISOString(),
+        payment_type: "qiwi"
+      }
+    )
+    if (response.status === 201) {
+      const url = response.data.form_url
+      window.location.replace(url)
+    }
   }
-
-  // Check if check_out is within storage's closing hours
-  const closingHours = moment(this.state.storage.closing_hours, 'HH:mm');
-  if (this.state.check_out.isAfter(closingHours)) {
-    return true;
-  }
-
-  // Return true if all validations pass
-  return false;
-}
 
 
   async componentWillMount() {
@@ -148,7 +169,7 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
                                     maxTime={dayjs(this.state.storage.closing_hours, "HH:mm:ss")}
                                     className="m-2"
                                     defaultValue={dayjs(this.state.check_in.format('YYYY-MM-DDTHH:mm'))}
-                                    // value={this.state.check_in.getTime()}
+                          // value={this.state.check_in.getTime()}
                                     ampm={false}/>
                       </div>
                       <FormLabel>Check-out</FormLabel>
@@ -197,7 +218,8 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
                       </span>
                       <button type="submit"
                               onClick={async () => {
-                                await this.choosePayment()
+                                console.log("orderStorage")
+                                await this.bookStorage()
                               }}
                               disabled={this.checkAvailability()}
                               className="btn-book">

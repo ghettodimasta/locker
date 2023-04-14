@@ -28,6 +28,9 @@ SECRET_KEY = 'django-insecure-uva1s#g7^95@d0u9$q5s99-30eq0=!&*#ycm(vkc(j1tvlr@(d
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', False) == 'True'
 
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+
 ALLOWED_HOSTS = ['*']
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -105,6 +108,23 @@ DATABASES = {
         "HOST": os.environ["DATABASE_HOST"],
         "PORT": os.environ.get("DATABASE_PORT", 5432),
         "TEST": {"NAME": "postgres-test", "TEMPLATE": "template1"},
+    }
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": [
+            f"{CELERY_BROKER_URL}/0",
+            # "redis://127.0.0.1:6379/1",
+        ],
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SOCKET_CONNECT_TIMEOUT": 15,  # in seconds
+            "SOCKET_TIMEOUT": 15,  # in seconds
+            "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
+            "CONNECTION_POOL_KWARGS": {"max_connections": 1000, "retry_on_timeout": True}
+        }
     }
 }
 
