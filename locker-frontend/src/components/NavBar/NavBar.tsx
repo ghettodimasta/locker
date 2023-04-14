@@ -7,7 +7,7 @@ import withReactContent from "sweetalert2-react-content";
 import back, {authUser, getCurrentUser, logout} from "../../services/api";
 import instance from "../../services/api";
 
-const alert = withReactContent(Swal);
+export const alert = withReactContent(Swal);
 
 type NavbarState = {
   user?: {

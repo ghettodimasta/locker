@@ -28,4 +28,8 @@ export async function getStorages(city) {
   return await instance.get(`/api/v1/storage-poi?city=${city}`);
 }
 
+export async function getStorage(id) {
+  return await instance.get(`/api/v1/storage-poi/${id}`);
+}
+
 export default instance;

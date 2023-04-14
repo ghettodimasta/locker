@@ -179,6 +179,7 @@ class Order(models.Model):
 
     ORDER_STATUS_CHOICES = (
         ("created", "Создан"),
+        ("payed", "Оплачен"),
         ("canceled", "Отменен"),
         ("checked_in", "Заселен"),
         ("checked_out", "Выселен"),
@@ -186,7 +187,8 @@ class Order(models.Model):
 
     PAYMENT_TYPE_CHOICES = (
         ("debit", "Дебетовая карта"),
-        ("sbp", "СБП")
+        ("sbp", "СБП"),
+        ("qiwi", "QIWI"),
     )
 
     status = models.CharField(max_length=100, choices=ORDER_STATUS_CHOICES, default='created')

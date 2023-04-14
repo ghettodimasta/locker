@@ -23,10 +23,11 @@ import {
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 import './App.css';
-// import SideBar from "./components/AdminPanel/SideBar/SideBar";
-// import PageNotFound from "./components/PageNotFound/PageNotFound";
 import HomePage from "./components/HomePage/HomePage";
 import {Storage} from "./components/Storages/Storages";
+import {StorageDetail} from "./components/StorageDetail/StorageDetail";
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 
 let router = createBrowserRouter(
@@ -34,29 +35,20 @@ let router = createBrowserRouter(
     <Route>
       <Route path="/" element={<HomePage/>}/>
       <Route path="/storages" element={<Storage/>}/>
+      <Route path="/storages/:id" element={<StorageDetail/>}/>
     </Route>
   )
-  // <Route path="/" element={<SideBar/>}>
-  //     {/*<Route index loader={homeLoader} element={<Home />} />*/}
-  //     <Route index element={<AdminPanel/>}/>
-  //     {/*<Route path="about" element={<About />} />*/}
-  //     {/*<Route path="dashboard" element={<Dashboard />} />*/}
-  //     {/*<Route path="*" element={<NoMatch />} />*/}
-  //   </Route>
 );
 
 
 function App() {
-  return <RouterProvider router={router}/>;
+  return (
+    <>
+      <RouterProvider router={router}/>
+      <LocalizationProvider dateAdapter={AdapterDayjs}/>
+    </>
+  )
 }
 
-// function App() {
-//   return (
-//     <Routes>
-//       <Route path="/" element={<AdminPanel/>}></Route>
-//       {/*<Route path="*" element={<NoMatch />} />*/}
-//     </Routes>
-//   );
-// }
 
 export default App;
