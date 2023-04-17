@@ -90,6 +90,17 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
     if (response.status === 200) {
       const check_in = this.state.check_in.set('hour', response.data.opening_hours.split(':')[0]).set('minute', response.data.opening_hours.split(':')[1])
       const check_out = this.state.check_out.set('hour', response.data.closing_hours.split(':')[0]).set('minute', response.data.closing_hours.split(':')[1])
+      if (response.data.available_bags <= 0) {
+        await alert.fire({
+          title: "No available bags",
+          text: "Sorry, but there are no available bags in this storage",
+          icon: "error",
+          confirmButtonText: "Ok",
+          preConfirm: async() => {
+            window.location.href = '/'
+          }
+        })
+      }
       await this.setState({
         storage: response.data,
         check_in: check_in,
@@ -209,16 +220,17 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
                         <button
                           className="btn btn-outline-secondary btn-number position-relative"
                           type="button"
-                          disabled={this.state.bags === 10}
-                          onClick={() => this.setState({bags: this.state.bags < 10 ? this.state.bags + 1 : this.state.bags})}
+                          disabled={this.state.bags === this.state.storage.available_bags}
+                          onClick={() => this.setState({bags: this.state.bags < this.state.storage.available_bags ? this.state.bags + 1 : this.state.bags})}
                           datatype="plus">
                           <i className="horizontal-stick-btn"></i>
                           <i className="vertical-stick-btn"></i>
                         </button>
                       </span>
                       <button type="submit"
-                              onClick={async () => {
-                                console.log("orderStorage")
+                              onClick={async (event) => {
+                                event.currentTarget.disabled = true
+                                event.currentTarget.value = "Loading..."
                                 await this.bookStorage()
                               }}
                               disabled={this.checkAvailability()}

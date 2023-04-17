@@ -105,6 +105,7 @@ class StoragePoi(models.Model):
     dadata_info = models.JSONField(null=True, editable=False)
     dadata_log = models.TextField(null=True, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    available_bags = models.IntegerField(default=10, verbose_name="Количество доступных мешков")
 
     @property
     def lat(self):
@@ -124,6 +125,12 @@ class StoragePoi(models.Model):
         if self.tracker.has_changed("address"):
             self.update_point_from_address(do_save=False)
 
+        super().save(*args, **kwargs)
+
+    @tracker(fields=("available_bags", "is_active"))
+    def save(self, *args, **kwargs):
+        if self.available_bags == 0:
+            self.is_active = False
         super().save(*args, **kwargs)
 
     def update_point_from_address(self, do_save=True):
@@ -207,6 +214,7 @@ class Order(models.Model):
     is_payed = models.BooleanField(default=False, db_index=True)
     form_url = models.URLField(null=True, blank=True, max_length=500)
 
+
     @property
     def check_url(self):
         return f"127.0.0.1:8000/api/v1/check-order/" if settings.DEBUG else f"{os.getenv('DOMAIN_NAME')}/api/v1/check-order/"
@@ -214,22 +222,15 @@ class Order(models.Model):
     def __str__(self):
         return f"{self.id}: {self.user} - {self.storage_poi}"
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['user', 'storage_poi'], name='uniq_user_storage_poi_is_active')
-        ]
-
-
-def __order_post_save(sender, instance, created, **kwargs):
-    instance.amount = instance.bags
-    if instance.payment_type == 'qiwi':
-        instance.form_url = create_qiwi_from(instance.id, instance.amount)
-
-    instance.save()
-
 
 @receiver(post_save, sender=Order)
 def order_post_save(sender, instance, created, **kwargs):
-    if created:
-        with transaction.atomic():
-            __order_post_save(sender, instance, created, **kwargs)
+    with transaction.atomic():
+        if created:
+            instance.amount = instance.bags  # TODO: add price
+            instance.storage_poi.available_bags -= instance.bags
+            instance.storage_poi.save()
+            if instance.payment_type == 'qiwi':
+                instance.form_url = create_qiwi_from(instance.id, instance.amount)
+
+            instance.save()
