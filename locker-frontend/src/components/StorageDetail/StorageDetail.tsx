@@ -229,8 +229,8 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
                       </span>
                       <button type="submit"
                               onClick={async (event) => {
-                                event.currentTarget.disabled = true
                                 event.currentTarget.value = "Loading..."
+                                event.currentTarget.disabled = true
                                 await this.bookStorage()
                               }}
                               disabled={this.checkAvailability()}
