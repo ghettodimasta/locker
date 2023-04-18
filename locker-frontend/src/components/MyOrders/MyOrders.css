@@ -1,0 +1,29 @@
+.table-header {
+    color: #87BC24;
+    color-opacity: 0.4;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 20px;
+    padding: 10px 0;
+    border-bottom: #87BC24 1px solid;
+}
+
+tbody tr:hover {
+    background-color: rgba(135, 188, 36, 0.4);
+}
+
+.left-panel {
+    border-right: #1a1a1a 1px solid;
+}
+
+.order-details {
+    font-size: 1rem;
+}
+
+.info-text {
+    width: 60%;
+}
+
+.table-body {
+    font-size: 16px;
+}

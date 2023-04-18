@@ -86,16 +86,20 @@ class Navbar extends Component<NavbarProps, NavbarState> {
     })
   }
 
-
-  handleMenuToggle = () => {
-
-  };
-
   async handleLogoutClick() {
-    await logout();
-    await this.setState({
-      user: undefined
-    });
+    await alert.fire({
+      title: 'Are you sure want to logout?',
+      showCancelButton: true,
+      confirmButtonColor: '#87BC24',
+      cancelButtonColor: 'black',
+      confirmButtonText: 'Yes, logout!',
+      preConfirm: async () => {
+        await logout();
+        await this.setState({
+          user: undefined
+        });
+      }
+    })
   };
 
   render() {
@@ -130,19 +134,30 @@ class Navbar extends Component<NavbarProps, NavbarState> {
                         {this.state.user ? (
                           <>
                             <li>
-                              <a className="menu-link font-weight-semibold collapsed"
-                                 onClick={this.handleMenuToggle}
-                                 aria-expanded={false}
-                                 href="javascript:void(0)"
-                              >{this.state.user.email}</a>
-                            </li>
-                            <li>
-                              <a className="menu-link font-weight-semibold collapsed"
-                                 href="javascript:void(0)"
-                                 aria-expanded={false}
-                                 onClick={async () => {
-                                   await this.handleLogoutClick();
-                                 }}>Logout</a>
+                              <div className="dropdown show">
+                                <a className="dropdown-toggle menu-link font-weight-semibold collapsed"
+                                   href="javascript:void(0)"
+                                   role="button"
+                                   id="dropdownMenuLink"
+                                   data-toggle="dropdown"
+                                   aria-haspopup="true"
+                                   aria-expanded="false">
+                                  {this.state.user.email}
+                                </a>
+
+                                <div className="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                  <a className="dropdown-item menu-link" href="/my-orders">My Orders</a>
+                                  <div className="dropdown-divider"></div>
+                                  <a className="dropdown-item menu-link"
+                                     href="javascript:void(0)"
+                                     aria-expanded={false}
+                                     onClick={async () => {
+                                       await this.handleLogoutClick();
+                                     }}>
+                                    Logout
+                                  </a>
+                                </div>
+                              </div>
                             </li>
                           </>
                         ) : (

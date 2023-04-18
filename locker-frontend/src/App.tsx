@@ -26,6 +26,7 @@ import './App.css';
 import HomePage from "./components/HomePage/HomePage";
 import {Storage} from "./components/Storages/Storages";
 import {StorageDetail} from "./components/StorageDetail/StorageDetail";
+import {MyOrder} from "./components/MyOrders/MyOrders";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
@@ -36,6 +37,7 @@ let router = createBrowserRouter(
       <Route path="/" element={<HomePage/>}/>
       <Route path="/storages" element={<Storage/>}/>
       <Route path="/storages/:id" element={<StorageDetail/>}/>
+      <Route path="/my-orders" element={<MyOrder/>}/>
     </Route>
   )
 );

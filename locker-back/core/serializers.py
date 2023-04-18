@@ -82,11 +82,18 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return user
 
 
+class StorageShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoragePoi
+        fields = ('id', 'address_clean', 'name')
+
+
 class OrderSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     bags = serializers.IntegerField(min_value=1, max_value=10, required=True)
     check_in = serializers.DateTimeField(required=True)
     check_out = serializers.DateTimeField(required=True)
+    storage_poi = StorageShortSerializer(read_only=True)
 
     class Meta:
         model = Order
