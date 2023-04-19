@@ -2,6 +2,7 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
+from django.utils import timezone
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import parsers, permissions, renderers, status
@@ -148,15 +149,41 @@ class OrderViewSet(ModelViewSet):
         order : Order = self.get_object()
         return HttpResponse(generate_qr_code(order.check_url + order.id), content_type='image/png')
 
+    @action(detail=False, methods=['get'], url_path='(?P<storage_id>[^/.]+)')
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("pin_code", openapi.IN_QUERY, description="pin code", type=openapi.TYPE_STRING,
+                              required=True),
+        ],
+    )
+    def check_pin_code(self, request, storage_id):
+        order : Order = Order.objects.filter(storage_poi=storage_id, pin_code=request.GET.get('pin_code')).first()
+        if not order:
+            return Response({'status': 'error', 'message': 'Invalid pin code or the order is not active.'})
+        if order.status == "checked_out":
+            return Response({'status': 'error', 'message': 'The order is already checked out.'})
+        if order.status == "checked_in" and not order.is_payed:
+            tz_now = timezone.now()
+            if order.check_out < tz_now:
+                order.recalculated_amount(tz_now)
+            return Response({'status': 'error', 'message': 'You need to pay order before check out'})
+        if order.status == "checked_in" and order.is_payed:
+            order.status = "checked_out"
+            order.save()
+            return Response({'status': 'ok'})
+        if order.is_available_for_check_in:
+            order.status = "checked_in"
+            order.save()
+            return Response({'status': 'ok'})
+        return Response({'status': 'error', 'message': 'Invalid pin code or the order is not active.'})
 
-class OrderCheckView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    def get(self, request, order_id):
-        order = Order.objects.get(id=order_id)
-        order.status = 'checked_in'
-        order.save(update_fields=['status'])
-        return HttpResponse("ok")
-
+    @action(detail=True, methods=['get'])
+    def pay(self, request, pk):
+        order : Order = self.get_object()
+        if order.status != "checked_in":
+            return Response({'status': 'error', 'message': 'You can not pay for this order'})
+        order.is_payed = True
+        order.save()
+        return Response({'status': 'ok'})
 
 

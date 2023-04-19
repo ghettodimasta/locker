@@ -87,20 +87,30 @@ class StorageShortSerializer(serializers.ModelSerializer):
         model = StoragePoi
         fields = ('id', 'address_clean', 'name')
 
+    def to_representation(self, instance):
+        self.fields['storage_poi'] = StorageShortSerializer(read_only=True)
+        return super().to_representation(instance)
+
 
 class OrderSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     bags = serializers.IntegerField(min_value=1, max_value=10, required=True)
     check_in = serializers.DateTimeField(required=True)
     check_out = serializers.DateTimeField(required=True)
-    storage_poi = StorageShortSerializer(read_only=True)
+    storage_poi = serializers.PrimaryKeyRelatedField(
+        queryset=StoragePoi.objects.all(),
+        write_only=True
+    )
+
+    def to_representation(self, instance):
+        self.fields['storage_poi'] = StorageShortSerializer(read_only=True)
+        return super().to_representation(instance)
 
     class Meta:
         model = Order
         fields = '__all__'
         extra_kwargs = {
             'user': {'write_only': True},
-            'storage': {'write_only': True},
             'status': {'read_only': True},
             'amount': {'read_only': True},
             'is_active': {'read_only': True},

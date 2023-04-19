@@ -1,15 +1,18 @@
 import datetime
 import logging
 import os
+import random
+import string
+import uuid
 
-import icecream
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models, transaction
 from django.contrib.gis.db import models as gis_models
 from django.contrib.gis.geos import Point
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 from transliterate.utils import _
 
 from core.validators import address_validate
@@ -23,7 +26,6 @@ logger = logging.getLogger(__name__)
 
 
 # Create your models here.
-
 
 class Role(models.Model):
     roles = (
@@ -105,7 +107,8 @@ class StoragePoi(models.Model):
     dadata_info = models.JSONField(null=True, editable=False)
     dadata_log = models.TextField(null=True, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    available_bags = models.IntegerField(default=10, verbose_name="Количество доступных мешков")
+    available_bags = models.IntegerField(default=10, verbose_name="Количество доступных мешков",
+                                         validators=[MinValueValidator(0)])
 
     @property
     def lat(self):
@@ -210,10 +213,10 @@ class Order(models.Model):
     check_out = models.DateTimeField(null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     payment_type = models.CharField(max_length=100, choices=PAYMENT_TYPE_CHOICES, default='debit')
-    is_active = models.BooleanField(default=True, db_index=True)
+    is_active = models.BooleanField(default=False, db_index=True)
     is_payed = models.BooleanField(default=False, db_index=True)
-    form_url = models.URLField(null=True, blank=True, max_length=500)
-
+    pin_code = models.CharField(default=''.join(random.choices(string.digits, k=6)), max_length=6, editable=False, db_index=True)
+    tracker = FieldTracker()
 
     @property
     def check_url(self):
@@ -222,15 +225,39 @@ class Order(models.Model):
     def __str__(self):
         return f"{self.id}: {self.user} - {self.storage_poi}"
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['pin_code', 'storage_poi', 'is_active'], name='uniq_pin_code_storage_poi')
+        ]
+
+    @tracker(fields=("status", "is_payed"))
+    def save(self, *args, **kwargs):
+        if self.tracker.has_changed("status"):
+            if self.status == "checked_in":
+                self.is_active = True
+            elif self.status == "checked_out":
+                self.is_active = False
+                self.storage_poi.available_bags += self.bags
+                self.storage_poi.save()
+
+        super().save(*args, **kwargs)
+
+    @property
+    def is_available_for_check_in(self):
+        return self.check_in <= timezone.now() <= self.check_out
+
+    def recalculated_amount(self, new_check_out):
+        self.check_out = new_check_out
+        self.amount = self.bags * 500 * (self.check_out.day - self.check_in.day + 1)
+        self.save()
+
 
 @receiver(post_save, sender=Order)
 def order_post_save(sender, instance, created, **kwargs):
     with transaction.atomic():
         if created:
-            instance.amount = instance.bags  # TODO: add price
+            instance.pin_code = repr(uuid.uuid4().int)[:6]
+            instance.amount = instance.bags * 500 * (instance.check_out.day - instance.check_in.day + 1)
             instance.storage_poi.available_bags -= instance.bags
             instance.storage_poi.save()
-            if instance.payment_type == 'qiwi':
-                instance.form_url = create_qiwi_from(instance.id, instance.amount)
-
             instance.save()

@@ -68,7 +68,7 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
     return false;
   }
 
-  private async bookStorage() {
+  private async bookStorage(event: any) {
     const response = await orderStorage(
       {
         storage_poi: this.state.storage_id,
@@ -79,8 +79,19 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
       }
     )
     if (response.status === 201) {
-      const url = response.data.form_url
-      window.location.replace(url)
+      await alert.fire({
+        title: "Order successful",
+        text: "Your order has been successfully created\n" +
+          "Your pin_code is " + response.data.pin_code + " available from " + this.state.check_in.format('DD.MM.YYYY HH:mm') + " to " + this.state.check_out.format('DD.MM.YYYY HH:mm'),
+        icon: "success",
+      })
+    }
+    else {
+      await alert.fire({
+        title: "Order failed",
+        text: "Sorry, but we can't create your order",
+        icon: "error",
+      })
     }
   }
 
@@ -231,11 +242,11 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
                               onClick={async (event) => {
                                 event.currentTarget.value = "Loading..."
                                 event.currentTarget.disabled = true
-                                await this.bookStorage()
+                                await this.bookStorage(event)
                               }}
                               disabled={this.checkAvailability()}
                               className="btn-book">
-                        Choose Payment
+                        Order Now
                       </button>
                     </div>
                   </div>
@@ -246,11 +257,5 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
         </div>
       </LocalizationProvider>
     )
-  }
-
-  private async choosePayment() {
-    await alert.fire({
-      title: 'Choose payment method',
-    })
   }
 }
