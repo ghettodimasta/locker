@@ -4,7 +4,9 @@ import os
 import random
 import string
 import uuid
+from _decimal import Decimal
 
+from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models, transaction
@@ -68,7 +70,7 @@ class UserManager(BaseUserManager):
         return self._create_user(email, password, role, **extra_fields)
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     email = models.EmailField(null=True, db_index=True)
@@ -216,11 +218,24 @@ class Order(models.Model):
     is_active = models.BooleanField(default=False, db_index=True)
     is_payed = models.BooleanField(default=False, db_index=True)
     pin_code = models.CharField(default=''.join(random.choices(string.digits, k=6)), max_length=6, editable=False, db_index=True)
+    is_payed_for_extra_days = models.BooleanField(default=None, db_index=True, null=True)
     tracker = FieldTracker()
 
     @property
     def check_url(self):
         return f"127.0.0.1:8000/api/v1/check-order/" if settings.DEBUG else f"{os.getenv('DOMAIN_NAME')}/api/v1/check-order/"
+
+    @property
+    def is_expired(self):
+        return self.check_out < timezone.now()
+
+    @property
+    def expired_days(self):
+        return (timezone.now() - self.check_out).days + 1
+
+    @property
+    def extra_amount(self):
+        return Decimal(self.expired_days * 500 * self.bags).quantize(Decimal('1.00'))
 
     def __str__(self):
         return f"{self.id}: {self.user} - {self.storage_poi}"
@@ -246,8 +261,7 @@ class Order(models.Model):
     def is_available_for_check_in(self):
         return self.check_in <= timezone.now() <= self.check_out
 
-    def recalculated_amount(self, new_check_out):
-        self.check_out = new_check_out
+    def recalculated_amount(self):
         self.amount = self.bags * 500 * (self.check_out.day - self.check_in.day + 1)
         self.save()
 

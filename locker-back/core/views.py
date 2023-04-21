@@ -1,4 +1,6 @@
+import datetime
 import logging
+import time
 
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
@@ -157,17 +159,22 @@ class OrderViewSet(ModelViewSet):
         ],
     )
     def check_pin_code(self, request, storage_id):
-        order : Order = Order.objects.filter(storage_poi=storage_id, pin_code=request.GET.get('pin_code')).first()
+        order: Order = Order.objects.filter(storage_poi=storage_id, pin_code=request.GET.get('pin_code')).first()
         if not order:
             return Response({'status': 'error', 'message': 'Invalid pin code or the order is not active.'})
         if order.status == "checked_out":
             return Response({'status': 'error', 'message': 'The order is already checked out.'})
-        if order.status == "checked_in" and not order.is_payed:
+        if not order.is_payed_for_extra_days and order.is_expired and order.status == "checked_in":
+            order.amount = order.bags * 500 * order.expired_days
+            order.save()
+            return Response({'status': 'error', 'message': f'You need to pay for extra days before check out.'
+                                                           f' Extra days: {order.expired_days}, amount: {order.amount}'})
+        if order.status == "checked_in" and not order.is_payed and not order.is_payed_for_extra_days:
             tz_now = timezone.now()
             if order.check_out < tz_now:
                 order.recalculated_amount(tz_now)
             return Response({'status': 'error', 'message': 'You need to pay order before check out'})
-        if order.status == "checked_in" and order.is_payed:
+        if order.status == "checked_in" and order.is_payed and order.is_payed_for_extra_days:
             order.status = "checked_out"
             order.save()
             return Response({'status': 'ok'})
@@ -180,10 +187,15 @@ class OrderViewSet(ModelViewSet):
     @action(detail=True, methods=['get'])
     def pay(self, request, pk):
         order : Order = self.get_object()
-        if order.status != "checked_in":
+        if order.status not in ["created", "checked_in"] and not order.is_payed_for_extra_days:
             return Response({'status': 'error', 'message': 'You can not pay for this order'})
+        if not order.is_payed_for_extra_days and order.is_expired and order.status == "checked_in":
+            order.is_payed_for_extra_days = True
+            order.check_out = order.check_out + datetime.timedelta(days=order.expired_days)
+            order.recalculated_amount()
+            return Response({'status': 'ok'})
         order.is_payed = True
         order.save()
-        return Response({'status': 'ok'})
+        return Response({'status': 'ok', 'pin_code': order.pin_code})
 
 

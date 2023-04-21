@@ -101,6 +101,14 @@ class OrderSerializer(serializers.ModelSerializer):
         queryset=StoragePoi.objects.all(),
         write_only=True
     )
+    expired_days = serializers.SerializerMethodField('get_expired_days')
+    extra_amount = serializers.SerializerMethodField('get_extra_amount')
+
+    def get_expired_days(self, obj):
+        return obj.expired_days
+
+    def get_extra_amount(self, obj):
+        return obj.extra_amount
 
     def to_representation(self, instance):
         self.fields['storage_poi'] = StorageShortSerializer(read_only=True)
@@ -117,4 +125,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'payment_type': {'required': True},
             'is_payed': {'read_only': True},
             'form_url': {'read_only': True},
+            'expired_days': {'read_only': True},
+            'extra_amount': {'read_only': True},
         }

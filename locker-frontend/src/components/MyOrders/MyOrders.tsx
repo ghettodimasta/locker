@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import Navbar from "../NavBar/NavBar";
-import {getOrders} from "../../services/api";
+import {getOrders, payOrder} from "../../services/api";
 import "./MyOrders.css";
 import moment from "moment";
 
@@ -33,6 +33,13 @@ export class MyOrder extends Component<MyOrderProps, MyOrderState> {
     } else {
       window.location.href = '/'
     }
+  }
+
+  private needToPayForExtra() {
+    return !(this.state.chosen_order.status === "created" ||
+                              this.state.chosen_order.status !== "checked_in" ||
+                              (this.state.chosen_order.is_payed &&
+                                (this.state.chosen_order.is_payed_for_extra_days || this.state.chosen_order.is_payed_for_extra_days == null)))
   }
 
 
@@ -90,7 +97,7 @@ export class MyOrder extends Component<MyOrderProps, MyOrderState> {
                       </div>
                       <div className="d-flex justify-content-between info-text">
                         <p>Address</p>
-                        <p>{this.state.chosen_order.storage_poi.clean_address}</p>
+                        <p className="address-info">{this.state.chosen_order.storage_poi.address_clean}</p>
                       </div>
                       <div className="d-flex justify-content-between info-text">
                         <p>Bags</p>
@@ -105,16 +112,61 @@ export class MyOrder extends Component<MyOrderProps, MyOrderState> {
                         <p>{moment(this.state.chosen_order.check_out).format("DD/MM/YY HH:mm")}</p>
                       </div>
                       <div className="d-flex justify-content-between info-text">
-                        <p>Total Days</p>
+                        <p>Expired Days</p>
+                        <p>{this.state.chosen_order.expired_days}</p>
+                      </div>
+                      <div className="d-flex justify-content-between info-text">
+                        <p>Total Days (Booked + Expired)</p>
                         <p>{moment(this.state.chosen_order.check_out).diff(
                           moment(this.state.chosen_order.check_in
-                          ), 'days') + 1}</p>
+                          ), 'days') + 1 + this.state.chosen_order.expired_days}</p>
+                      </div>
+                      <div className="d-flex justify-content-between info-text">
+                        <h6><strong>Extra Amount</strong></h6>
+                        <h6><strong>{this.state.chosen_order.extra_amount.toFixed(2)}</strong></h6>
                       </div>
                       <div className="d-flex justify-content-between info-text">
                         <h5><strong>Total Price</strong></h5>
-                        <h5><strong>{this.state.chosen_order.amount}</strong></h5>
+                        <h5><strong>{(parseFloat(this.state.chosen_order.amount.replace(/,/g, '')) + this.state.chosen_order.extra_amount).toFixed(2)}</strong></h5>
                       </div>
                     </div>
+                    {this.needToPayForExtra() ? (
+                      <button type="submit"
+                            onClick={async (event) => {
+                              event.preventDefault();
+                              await this.setState({
+                                loader_active: true
+                              })
+                              const response = await payOrder(this.state.chosen_order.id)
+                              if (response.status === 200) {
+                                await this.setState({
+                                  loader_active: false,
+                                })
+                              } else {
+                                await this.setState({
+                                  loader_active: false
+                                })
+                              }
+                            }}
+                            className="btn-book">
+                      Pay for extra days {this.state.chosen_order.extra_amount.toFixed(2)}
+                    </button>
+                    ) : (
+                      <button type="submit"
+                              className="btn-book"
+                              onMouseEnter={async (event) => {
+                                // event.preventDefault();
+                                console.log('event', event)
+                                event.currentTarget.innerHTML = this.state.chosen_order.pin_code
+                              }}
+
+                              onMouseLeave={async (event) => {
+                                event.currentTarget.innerHTML = 'Show Pin Code'
+                              }}
+                      >
+                       Show Pin Code
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : null

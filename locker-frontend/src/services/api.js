@@ -40,4 +40,8 @@ export async function getOrders(){
   return await instance.get(`/api/v1/order`);
 }
 
+export async function payOrder(id){
+  return await instance.get(`/api/v1/order/${id}/pay`);
+}
+
 export default instance;

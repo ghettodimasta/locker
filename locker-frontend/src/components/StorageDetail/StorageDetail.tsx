@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import Navbar, {alert} from "../NavBar/NavBar";
-import {getStorage, orderStorage} from "../../services/api";
+import {getStorage, orderStorage, payOrder} from "../../services/api";
 import "./StorageDetail.css";
 import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
@@ -46,27 +46,30 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
   }
 
   private checkAvailability(): boolean {
-    // Check if check_in is before check_out
-    if (this.state.check_in.isSameOrAfter(this.state.check_out)) {
-      return true;
-    }
-
-    // Check if check_in is within storage's opening hours
-    const openingHours = moment(this.state.storage.opening_hours, 'HH:mm');
-
-    if (this.state.check_in.isBefore(openingHours)) {
-      return true;
-    }
-
-    // Check if check_out is within storage's closing hours
-    const closingHours = moment(this.state.storage.closing_hours, 'HH:mm');
-    if (this.state.check_out.isAfter(closingHours)) {
-      return true;
-    }
-
-    // Return true if all validations pass
-    return false;
+  // Check if check_in is before check_out
+  if (this.state.check_in.isSameOrAfter(this.state.check_out)) {
+    return true;
   }
+
+  // Check if check_in is within storage's opening hours
+  const openingHours = moment(this.state.storage.opening_hours, 'HH:mm');
+  const checkInTime = moment(this.state.check_in.format('HH:mm'), 'HH:mm');
+
+  if (checkInTime.isBefore(openingHours, 'hour')) {
+    return true;
+  }
+
+  // Check if check_out is within storage's closing hours
+  const closingHours = moment(this.state.storage.closing_hours, 'HH:mm');
+  const checkOutTime = moment(this.state.check_out.format('HH:mm'), 'HH:mm');
+
+  if (checkOutTime.isAfter(closingHours, 'hour')) {
+    return true;
+  }
+
+  // Return true if all validations pass
+  return false;
+}
 
   private async bookStorage(event: any) {
     const response = await orderStorage(
@@ -81,9 +84,20 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
     if (response.status === 201) {
       await alert.fire({
         title: "Order successful",
-        text: "Your order has been successfully created\n" +
-          "Your pin_code is " + response.data.pin_code + " available from " + this.state.check_in.format('DD.MM.YYYY HH:mm') + " to " + this.state.check_out.format('DD.MM.YYYY HH:mm'),
+        text: "Your order has been successfully created\n" + "To get pin_code for your storage, please pay for your order",
+        confirmButtonText: "Pay",
+        showConfirmButton: true,
         icon: "success",
+        preConfirm: async () => {
+          const pay_response = await payOrder(response.data.id)
+          if (pay_response.status === 200) {
+            await alert.fire({
+              title: "Payment successful",
+              text: `Your payment has been successfully completed\nYour pin_code is ${pay_response.data.pin_code}`,
+              icon: "success",
+            })
+          }
+        }
       })
     }
     else {
@@ -202,7 +216,9 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
                                       const change = this.state.check_out.set('date', date.date()).set('month', date.month()).set('year', date.year())
                                       this.setState({check_out: change})
                                     }}
-                                    defaultValue={dayjs(this.state.check_out.format('YYYY-MM-DD'))}/>
+                                    defaultValue={dayjs(this.state.check_out.format('YYYY-MM-DD'))}
+                                    disablePast={true}
+                        />
                         <TimePicker label="Time"
                                     onChange={(time) => {
                                       // @ts-ignore
@@ -246,7 +262,7 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
                               }}
                               disabled={this.checkAvailability()}
                               className="btn-book">
-                        Order Now
+                        Pay Now
                       </button>
                     </div>
                   </div>
