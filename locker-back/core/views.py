@@ -95,6 +95,7 @@ class StoragePoiViewSet(ModelViewSet):
 
 
 class AddressAutocomplete(APIView):
+
     permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(

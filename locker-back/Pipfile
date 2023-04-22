@@ -21,6 +21,8 @@ celery = "*"
 redis = "*"
 django-redis = "*"
 icecream = "*"
+django-autocomplete-light = "*"
+django-select2 = "*"
 
 [dev-packages]
 

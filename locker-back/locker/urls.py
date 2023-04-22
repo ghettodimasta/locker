@@ -41,7 +41,7 @@ urlpatterns = [
     path('api/v1/auth', views.ObtainAuthToken.as_view(), name='auth'),
     path('api/v1/logout', views.LogoutView.as_view(), name='logout'),
     path('api/v1/', include(api_router.urls)),
-    path('api/v1/address-autocomplete', views.AddressAutocomplete.as_view(), name='address-autocomplete'),
+    path('api/v1/address-autocomplete', views.AddressAutocomplete.as_view(), name='address_autocomplete'),
     path('api-auth/', include('rest_framework.urls')),
     path('swagger', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
