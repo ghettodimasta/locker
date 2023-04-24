@@ -50,7 +50,6 @@ class Navbar extends Component<NavbarProps, NavbarState> {
   async login() {
     await alert.fire({
       title: 'Login',
-      imageUrl: '',
       html: (
         <div id="login-modal" className="d-flex fd" style={{flexDirection: "column"}}>
           <input className="swal2-input d-flex" id="swal2-input email" placeholder="Enter your email address"
@@ -67,7 +66,6 @@ class Navbar extends Component<NavbarProps, NavbarState> {
       preConfirm: async () => {
         const email = (document.getElementById('swal2-input email') as HTMLInputElement).value;
         const password = (document.getElementById('swal2-input pass') as HTMLInputElement).value;
-        console.log(email, password)
         if (!email || !password) {
           await alert.showValidationMessage(
             `Please enter your email and password`
@@ -83,6 +81,20 @@ class Navbar extends Component<NavbarProps, NavbarState> {
           user: response.data
         })
       },
+    })
+  }
+
+  async register() {
+    await alert.fire({
+      title: 'Create your account',
+      html: (
+        <div id="login-modal" className="d-flex fd" style={{flexDirection: "column"}}>
+          <input className="swal2-input d-flex" id="swal2-input email" placeholder="Enter your email address"
+                 type="email"/>
+          <input className="swal2-input d-flex" id="swal2-input pass" placeholder="Enter your password"
+                 type="password"/>
+        </div>
+      )
     })
   }
 

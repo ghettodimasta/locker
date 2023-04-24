@@ -1,0 +1,40 @@
+.register-form-wrap {
+    padding-block: 20px;
+    padding-inline: 100px;
+    border-radius: 30px;
+    background: #EAF1C2;
+    min-width: 400px;
+}
+
+.img-wrap {
+    left: 225px;
+    position: absolute;
+    /*width: 645px;*/
+    /*height: 600px;*/
+    max-height: 500px;
+    background-repeat: no-repeat;
+}
+
+.reg-panel {
+    padding-top: 100px;
+    padding-left: 250px;
+}
+
+.reg-panel .input-wrap {
+    font-size: 17px;
+    font-weight: 400 !important;
+}
+
+.new-user-input {
+    background: #FFFFFF;
+    border: 1px solid #87BC24;
+    border-radius: 30px;
+}
+
+.btn-sign-up {
+    background: #87BC24;
+    border-radius: 30px;
+    color: white;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

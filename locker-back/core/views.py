@@ -2,6 +2,7 @@ import datetime
 import logging
 import time
 
+import rest_framework.exceptions
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.utils import timezone
@@ -54,6 +55,8 @@ class ObtainAuthToken(APIView):
 
         data = serializer.validated_data
         user = data['user']
+        if not user.is_active:
+            return rest_framework.exceptions.ValidationError('User account is disabled.', 'authorization')
         remember_me = data.pop('remember_me')
         token = Token.objects.get_or_create(user=user)[0]
 
@@ -100,7 +103,7 @@ class AddressAutocomplete(APIView):
 
     @swagger_auto_schema(
         manual_parameters=[
-            openapi.Parameter("q", openapi.IN_QUERY, description="address", type=openapi.TYPE_STRING,
+            openapi.Parameter("q2", openapi.IN_QUERY, description="address", type=openapi.TYPE_STRING,
                               required=True),
         ],
     )
@@ -200,3 +203,20 @@ class OrderViewSet(ModelViewSet):
         return Response({'status': 'ok', 'pin_code': order.pin_code})
 
 
+class ActivateUser(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter("token", openapi.IN_PATH, description="token", type=openapi.TYPE_STRING,
+                              required=True),
+        ],
+    )
+    def get(self, request, token):
+        try:
+            user = User.objects.get(activation_token=token)
+        except User.DoesNotExist:
+            return Response({'status': 'error', 'message': 'Invalid token'})
+        user.is_active = True
+        user.save()
+        return Response({'status': 'ok', 'text': 'Your account is activated. You can login now.'})

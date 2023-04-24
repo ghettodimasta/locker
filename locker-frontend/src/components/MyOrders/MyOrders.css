@@ -1,19 +1,49 @@
 .table-header {
-    color: #87BC24;
-    color-opacity: 0.4;
-    font-weight: bold;
-    font-size: 14px;
-    line-height: 20px;
+    background: #87BC24;
+    color: white;
+    font-family: 'Jost', sans-serif;
+    font-weight: 400;
     padding: 10px 0;
     border-bottom: #87BC24 1px solid;
+    border-radius: 30px;
+    text-align: center;
 }
+
+.header-title {
+    padding-left: 15px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.table-header th {
+    font-weight: 400;
+    font-size: 24px;
+    font-style: normal;
+    line-height: 35px;
+}
+
+.table-header th:first-child {
+    border-radius: 30px 0 0 0;
+}
+
+.table-header th:last-child {
+    border-radius: 0 30px 0 0;
+}
+
+
+.detail-text {
+    color: #7A7A7A;
+}
+
+.table-wrap {
+    border: 1px solid #A9A9A9;
+    border-radius: 30px;
+    height: 100%;
+}
+
 
 tbody tr:hover {
     background-color: rgba(135, 188, 36, 0.4);
-}
-
-.left-panel {
-    border-right: #1a1a1a 1px solid;
 }
 
 .order-details {
@@ -32,4 +62,20 @@ tbody tr:hover {
     width: 48%;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.right-panel {
+    padding: 15px;
+    border: 1px solid #A9A9A9;
+    border-radius: 30px;
+}
+
+.extra {
+    border-radius: 30px;
+}
+
+.detail-id {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
 }

@@ -27,8 +27,10 @@ import HomePage from "./components/HomePage/HomePage";
 import {Storage} from "./components/Storages/Storages";
 import {StorageDetail} from "./components/StorageDetail/StorageDetail";
 import {MyOrder} from "./components/MyOrders/MyOrders";
+import {Register} from "./components/Register/Register";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import Activate from "./components/Activate/Activate";
 
 
 let router = createBrowserRouter(
@@ -38,6 +40,8 @@ let router = createBrowserRouter(
       <Route path="/storages" element={<Storage/>}/>
       <Route path="/storages/:id" element={<StorageDetail/>}/>
       <Route path="/my-orders" element={<MyOrder/>}/>
+      <Route path="/register" element={<Register/>}/>
+      <Route path="/activate/:token" element={<Activate/>}/>
     </Route>
   )
 );

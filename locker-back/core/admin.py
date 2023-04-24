@@ -9,9 +9,6 @@ from django.utils.safestring import mark_safe
 
 from core.models import User, Role, StoragePoi, Order
 from django import forms
-from django.conf import settings
-
-print(settings.TEMPLATES)
 
 admin.site.register(User)
 

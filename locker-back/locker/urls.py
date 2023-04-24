@@ -43,5 +43,6 @@ urlpatterns = [
     path('api/v1/', include(api_router.urls)),
     path('api/v1/address-autocomplete', views.AddressAutocomplete.as_view(), name='address_autocomplete'),
     path('api-auth/', include('rest_framework.urls')),
+    path('api/v1/activate/<str:token>', views.ActivateUser.as_view(), name='activate'),
     path('swagger', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]

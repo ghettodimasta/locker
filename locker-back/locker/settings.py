@@ -237,3 +237,13 @@ DADATA_TOKEN = os.environ.get('DADATA_TOKEN')
 DADATA_SECRET = os.environ.get('DADATA_SECRET')
 
 ACCESS_TOKEN_COOKIE_SECURE = os.environ.get('ACCESS_TOKEN_COOKIE_SECURE', 'False') == 'True'
+
+
+EMAIL_FROM = os.environ["EMAIL_FROM"]
+DEFAULT_FROM_EMAIL = os.environ["EMAIL_FROM"]
+EMAIL_HOST = os.environ["EMAIL_HOST"]
+EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
+EMAIL_PORT = os.environ["EMAIL_PORT"]
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", False)
+EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", False)

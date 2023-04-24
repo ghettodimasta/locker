@@ -1,4 +1,7 @@
+from hashlib import md5
+
 from django.contrib.auth import authenticate
+from django.core.mail import send_mail
 from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated
 from transliterate.utils import _
@@ -78,7 +81,8 @@ class CreateUserSerializer(serializers.ModelSerializer):
         user = super().create(validated_data)
         password = validated_data['password']
         user.set_password(password)
-        user.save(update_fields=['password'])
+        user.is_active = False
+        user.save(update_fields=['password', 'is_active'])
         return user
 
 

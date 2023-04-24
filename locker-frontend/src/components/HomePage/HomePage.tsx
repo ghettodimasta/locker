@@ -26,8 +26,6 @@ class HomePage extends Component<HomeProps, HomeState> {
   }
 
   async search(city: string){
-    console.log(city)
-    console.log(this.state.search_city)
     window.location.href = '/storages?city=' + city;
   }
 

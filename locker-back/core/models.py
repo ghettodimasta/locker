@@ -8,6 +8,7 @@ from _decimal import Decimal
 
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.core.mail import send_mail
 from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models, transaction
 from django.contrib.gis.db import models as gis_models
@@ -15,6 +16,7 @@ from django.contrib.gis.geos import Point
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.crypto import md5
 from transliterate.utils import _
 
 from core.validators import address_validate
@@ -76,6 +78,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(null=True, db_index=True)
     is_active = models.BooleanField(default=True)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    activation_token = models.CharField(max_length=32, null=True, editable=False)
 
     objects = UserManager()
 
@@ -85,6 +88,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         constraints = [
             models.UniqueConstraint(fields=['email'], name='uniq_email_is_active')
         ]
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        instance.activation_token = md5(instance.email.encode()).hexdigest()
+        instance.save()
+        from .tasks import send_auth_mail
+        send_auth_mail.delay(instance.email, instance.activation_token, settings.EMAIL_FROM)
 
 
 class StoragePoi(models.Model):

@@ -44,4 +44,12 @@ export async function payOrder(id){
   return await instance.get(`/api/v1/order/${id}/pay`);
 }
 
+export async function createUser(data){
+  return await instance.post(`/api/v1/user`, data);
+}
+
+export async function activate(token){
+  return await instance.get(`/api/v1/activate/${token}`);
+}
+
 export default instance;
