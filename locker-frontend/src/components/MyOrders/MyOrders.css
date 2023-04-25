@@ -59,7 +59,8 @@ tbody tr:hover {
 }
 
 .address-info {
-    width: 48%;
+    font-size: 14px;
+    width: 43%;
     overflow: hidden;
     text-overflow: ellipsis;
 }

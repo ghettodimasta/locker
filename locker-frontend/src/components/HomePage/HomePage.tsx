@@ -25,7 +25,7 @@ class HomePage extends Component<HomeProps, HomeState> {
     }
   }
 
-  async search(city: string){
+  async search(city: string) {
     window.location.href = '/storages?city=' + city;
   }
 
@@ -34,107 +34,111 @@ class HomePage extends Component<HomeProps, HomeState> {
       <>
         <Navbar/>
         <div className="main">
-          <div className="container pt-3">
-            <div className="d-flex flex-row flex-wrap">
-              <div className="destination-header col-12 px-0 text-center d-flex justify-content-md-center">
-                <div className='title_find d-flex items-center align-items-center'>
+          <div>
+            <div className="d-flex flex-row flex-wrap search-container">
+              <div className="d-flex w-100">
+                <div className='ml-0 pl-0 col title_find d-flex items-center align-items-center'>
                   <h1 className="text-center ti fw-bold">FIND</h1>
+                </div>
+                <div className='col title_find d-flex items-center align-items-center'>
                   <IonIcon name="location-sharp" className="location-sharp"
                            style={{width: "74px", height: "88px", fill: "#87BC24"}}/>
                 </div>
-                <div className='title_your d-flex align-items-center'>
+                <div className='col title_your d-flex align-items-center'>
                   <h1 className="text-center ti fw-bold">YOUR</h1>
+                </div>
+                <div className='col title_find d-flex items-center align-items-center'>
                   <IonIcon name="arrow-forward-circle" className="arrow-forward-circle"
                            style={{width: "73px", height: "83px", fill: "#87BC24"}}/>
                 </div>
-                <div className='title_your d-flex'>
+                <div className='mr-0 pr-0 col title_your d-flex'>
                   <h1 className="text-center ti">STORAGE</h1>
                 </div>
               </div>
-              <div className="row col-12 px-0 mx-auto justify-content-center" style={{maxWidth: "100%"}}>
-                <div className="col px-0">
-                  <div className="d-flex align-items-center flex-column" id="search">
-                    <form className="search-form">
-                      <div className="search-box">
-                        <input type="text"
-                               placeholder="Search for a city"
-                               className="search-input"
-                               onChange={(e) => {
-                                  this.setState({search_city: e.target.value})
-                               }}
+              <div className="d-flex w-100" style={{maxWidth: "100%"}}>
+                <div className="w-100" id="search">
+                  <form className="search-form">
+                    <div className="search-box">
+                      <input type="text"
+                             placeholder="search city"
+                             className="search-input"
+                             onChange={(e) => {
+                               this.setState({search_city: e.target.value})
+                             }}
 
-                        />
-                        <button type="submit"
-                                onClick={async (e) => {
-                                  e.preventDefault();
-                                  await this.search(this.state.search_city);
-                                }}
-                                className="btn-search btn-primary btn-regular d-md-block d-none">
-                          Search
-                        </button>
-                      </div>
-                    </form>
-                  </div>
+                      />
+                      <button type="submit"
+                              onClick={async (e) => {
+                                e.preventDefault();
+                                await this.search(this.state.search_city);
+                              }}
+                              className="btn-search btn-primary btn-regular d-md-block d-none">
+                        search
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
-            <div className="d-flex flex-wrap">
-              <section className="store-section container d-flex flex-wrap my-5 pt-2 tips">
-                <div className="d-flex flex-wrap align-items-start col-12 px-0 m-5">
-                  <div
-                    className="col-md-3 col-12 d-flex flex-md-wrap flex-nowrap align-items-md-start align-items-center mb-md-0 mb-5 px-5">
-                    <div className="col-12 mr-md-0 mr-4 mb-md-4 px-0">
-                      <picture>
-                        <img src={frame_1}/>
-                      </picture>
-                    </div>
-                    <div className="col-md-12 col px-md-0 pr-0">
-                      <div className="col-12 mb-2 px-0 text-fs-12 text-color-light">Step 1</div>
-                      <div className="title col-12 mb-2 px-0 text-fs-18">Locate</div>
-                      <p className="col-12 mb-2 px-0 text-fs-12 text-color-light">Find storage on map</p>
-                    </div>
+            <div className="search-container pt-5">
+              <div className="d-flex w-100">
+                <h1 className="text-uppercase">you need only 4 steps for an easy walk</h1>
+              </div>
+              <div className="align-items-start d-grid"
+                   style={{gridTemplateColumns: 'repeat(4, 1fr)', columnGap: '30px'}}>
+                <div
+                  className="col card-step p-4">
+                  <div className="col-12 mr-md-0 mr-4 mb-md-4 px-0">
+                    <picture>
+                      <img src={frame_1}/>
+                    </picture>
                   </div>
-                  <div
-                    className="col-md-3 col-12 d-flex flex-md-wrap flex-nowrap align-items-md-start align-items-center mb-md-0 mb-5 px-5">
-                    <div className="col-12 mr-md-0 mr-4 mb-md-4 px-0">
-                      <picture>
-                        <img src={frame_2}/>
-                      </picture>
-                    </div>
-                    <div className="col-md-12 col px-md-0 pr-0">
-                      <div className="col-12 mb-2 px-0 text-fs-12 text-color-light">Step 2</div>
-                      <div className="title col-12 mb-2 px-0 text-fs-18">Book</div>
-                      <p className="col-12 mb-2 px-0 text-fs-12 text-color-light">Pay for storage online</p>
-                    </div>
-                  </div>
-                  <div
-                    className="col-md-3 col-12 d-flex flex-md-wrap flex-nowrap align-items-md-start align-items-center mb-md-0 mb-5 px-5">
-                    <div className="col-12 mr-md-0 mr-4 mb-md-4 px-0">
-                      <picture>
-                        <img src={frame_3}/>
-                      </picture>
-                    </div>
-                    <div className="col-md-12 col px-md-0 pr-0">
-                      <div className="col-12 mb-2 px-0 text-fs-12 text-color-light">Step 3</div>
-                      <div className="title col-12 mb-2 px-0 text-fs-18">Store</div>
-                      <p className="col-12 mb-2 px-0 text-fs-12 text-color-light">Store your suitcase</p>
-                    </div>
-                  </div>
-                  <div
-                    className="col-md-3 col-12 d-flex flex-md-wrap flex-nowrap align-items-md-start align-items-center mb-md-0 mb-5 px-5">
-                    <div className="col-12 mr-md-0 mr-4 mb-md-4 px-0">
-                      <picture>
-                        <img src={frame_4}/>
-                      </picture>
-                    </div>
-                    <div className="col-md-12 col px-md-0 pr-0">
-                      <div className="col-12 mb-2 px-0 text-fs-12 text-color-light">Step 4</div>
-                      <div className="title col-12 mb-2 px-0 text-fs-18">Enjoy</div>
-                      <p className="col-12 mb-2 px-0 text-fs-12 text-color-light">Enjoy your hands-free walking</p>
-                    </div>
+                  <div className="col-md-12 col px-md-0 pr-0">
+                    <div className="col-12 mb-2 px-0 text-fs-12 text-color-light">step 1</div>
+                    <div className="title col-12 mb-2 px-0 text-fs-18 text-uppercase tip-title">Locate</div>
+                    <p className="col-12 mb-2 px-0 text-fs-12 text-color-light">find storage on map</p>
                   </div>
                 </div>
-              </section>
+                <div
+                  className="col card-step p-4">
+                  <div className="col-12 mr-md-0 mr-4 mb-md-4 px-0">
+                    <picture>
+                      <img src={frame_2}/>
+                    </picture>
+                  </div>
+                  <div className="col-md-12 col px-md-0 pr-0">
+                    <div className="col-12 mb-2 px-0 text-fs-12 text-color-light">step 2</div>
+                    <div className="title col-12 mb-2 px-0 text-fs-18 text-uppercase tip-title">Book</div>
+                    <p className="col-12 mb-2 px-0 text-fs-12 text-color-light">pay for storage online</p>
+                  </div>
+                </div>
+                <div
+                  className="col card-step p-4">
+                  <div className="col-12 mr-md-0 mr-4 mb-md-4 px-0">
+                    <picture>
+                      <img src={frame_3}/>
+                    </picture>
+                  </div>
+                  <div className="col-md-12 col px-md-0 pr-0">
+                    <div className="col-12 mb-2 px-0 text-fs-12 text-color-light">step 3</div>
+                    <div className="title col-12 mb-2 px-0 text-fs-18 text-uppercase tip-title">Store</div>
+                    <p className="col-12 mb-2 px-0 text-fs-12 text-color-light">store your suitcase</p>
+                  </div>
+                </div>
+                <div
+                  className="col card-step p-4">
+                  <div className="col-12 mr-md-0 mr-4 mb-md-4 px-0">
+                    <picture>
+                      <img src={frame_4}/>
+                    </picture>
+                  </div>
+                  <div className="col-md-12 col px-md-0 pr-0">
+                    <div className="col-12 mb-2 px-0 text-fs-12 text-color-light">step 4</div>
+                    <div className="title col-12 mb-2 px-0 text-fs-18 text-uppercase tip-title">Enjoy</div>
+                    <p className="col-12 mb-2 px-0 text-fs-12 text-color-light">enjoy your hands-free walking</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
