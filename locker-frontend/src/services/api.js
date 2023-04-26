@@ -52,4 +52,8 @@ export async function activate(token){
   return await instance.get(`/api/v1/activate/${token}`);
 }
 
+export async function getCities(){
+  return await instance.get(`/api/v1/storage-poi/cities`);
+}
+
 export default instance;

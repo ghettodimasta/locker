@@ -6,11 +6,13 @@ import frame_2 from "../../assets/Frame 2.svg";
 import frame_3 from "../../assets/Frame 3.svg";
 import frame_4 from "../../assets/Frame 4.svg";
 import {Component} from "react";
-import {getStorages} from "../../services/api";
+import {getCities, getStorages} from "../../services/api";
+import {SearchBar} from "../SearchBar/SearchBar";
 
 type HomeState = {
   loader_active: boolean,
-  search_city: string
+  search_city: string,
+  cities: []
 };
 
 interface HomeProps {
@@ -21,7 +23,17 @@ class HomePage extends Component<HomeProps, HomeState> {
     super(props);
     this.state = {
       loader_active: false,
-      search_city: ''
+      search_city: '',
+      cities: []
+    }
+  }
+
+  async componentWillMount() {
+    const response = await getCities()
+    if (response.status === 200) {
+      this.setState({
+        cities: response.data.cities
+      })
     }
   }
 
@@ -58,24 +70,26 @@ class HomePage extends Component<HomeProps, HomeState> {
               <div className="d-flex w-100" style={{maxWidth: "100%"}}>
                 <div className="w-100" id="search">
                   <form className="search-form">
-                    <div className="search-box">
-                      <input type="text"
-                             placeholder="search city"
-                             className="search-input"
-                             onChange={(e) => {
-                               this.setState({search_city: e.target.value})
-                             }}
+                    <SearchBar search_city={this.state.search_city} cities={this.state.cities}/>
+                    {/*<div className="search-box">*/}
+                    {/*  <input type="text"*/}
+                    {/*         placeholder="search city"*/}
+                    {/*          list="cities"*/}
+                    {/*         className="search-input"*/}
+                    {/*         onChange={(e) => {*/}
+                    {/*           this.setState({search_city: e.target.value})*/}
+                    {/*         }}*/}
 
-                      />
-                      <button type="submit"
-                              onClick={async (e) => {
-                                e.preventDefault();
-                                await this.search(this.state.search_city);
-                              }}
-                              className="btn-search btn-primary btn-regular d-md-block d-none">
-                        search
-                      </button>
-                    </div>
+                    {/*  />*/}
+                    {/*  <button type="submit"*/}
+                    {/*          onClick={async (e) => {*/}
+                    {/*            e.preventDefault();*/}
+                    {/*            await this.search(this.state.search_city);*/}
+                    {/*          }}*/}
+                    {/*          className="btn-search btn-primary btn-regular d-md-block d-none">*/}
+                    {/*    search*/}
+                    {/*  </button>*/}
+                    {/*</div>*/}
                   </form>
                 </div>
               </div>

@@ -1,0 +1,11 @@
+.dropdown-item:hover {
+    background: rgba(225, 238, 145, 0.5);
+    color: black;
+}
+
+.form-control:focus {
+    color: #212529;
+    background-color: #fff;
+    border-color: #87BC24;
+    outline: 0;
+}

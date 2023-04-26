@@ -1,10 +1,9 @@
 import datetime
 import logging
-import time
-
 import rest_framework.exceptions
+import django_filters
+
 from django.contrib.auth import get_user_model
-from django.http import HttpResponse
 from django.utils import timezone
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -15,7 +14,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
-import django_filters
 from dadata import Dadata
 
 from core.models import StoragePoi, Order
@@ -96,6 +94,13 @@ class StoragePoiViewSet(ModelViewSet):
     def get_queryset(self):
         return StoragePoi.objects.all()
 
+    @action(detail=False, methods=['get'])
+    def cities(self, request):
+        cities = StoragePoi.objects.all().values_list('dadata_info', flat=True)
+        cities = [city['city'] if city['city'] else city['region'] for city in cities]
+        cities = list(set(cities))
+        return Response(dict(cities=cities))
+
 
 class AddressAutocomplete(APIView):
 
@@ -103,7 +108,7 @@ class AddressAutocomplete(APIView):
 
     @swagger_auto_schema(
         manual_parameters=[
-            openapi.Parameter("q2", openapi.IN_QUERY, description="address", type=openapi.TYPE_STRING,
+            openapi.Parameter("q", openapi.IN_QUERY, description="address", type=openapi.TYPE_STRING,
                               required=True),
         ],
     )
@@ -149,11 +154,6 @@ class OrderViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
-
-    @action(detail=True, methods=['get'])
-    def qr(self):
-        order : Order = self.get_object()
-        return HttpResponse(generate_qr_code(order.check_url + order.id), content_type='image/png')
 
     @action(detail=False, methods=['get'], url_path='(?P<storage_id>[^/.]+)')
     @swagger_auto_schema(

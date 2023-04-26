@@ -151,7 +151,7 @@ class Navbar extends Component<NavbarProps, NavbarState> {
                                    href="javascript:void(0)"
                                    role="button"
                                    id="dropdownMenuLink"
-                                   data-toggle="dropdown"
+                                   data-bs-toggle="dropdown"
                                    aria-haspopup="true"
                                    aria-expanded="false">
                                   {this.state.user.email}
