@@ -1,13 +1,13 @@
 .register-form-wrap {
     padding-block: 20px;
-    padding-inline: 100px;
+    padding-inline: 50px;
     border-radius: 30px;
     background: #EAF1C2;
     min-width: 400px;
 }
 
 .img-wrap {
-    left: 225px;
+    left: 390px;
     position: absolute;
     /*width: 645px;*/
     /*height: 600px;*/
@@ -16,8 +16,8 @@
 }
 
 .reg-panel {
-    padding-top: 100px;
-    padding-left: 250px;
+    padding-top: 140px;
+    padding-left: 380px;
 }
 
 .reg-panel .input-wrap {
@@ -32,9 +32,41 @@
 }
 
 .btn-sign-up {
+}
+
+.btn-sign-up {
     background: #87BC24;
     border-radius: 30px;
     color: white;
     margin-top: 20px;
     margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border: none;
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
 }
+
+.btn-sign-up:hover:not(:disabled) {
+    background-color: #6b9e1c;
+}
+
+.btn-sign-up:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+span:last-child {
+    margin-left: 0.5rem;
+}
+
+.btn-sign-up:hover {
+    background: #729a1c;
+    text-decoration: none;
+}
+

@@ -110,7 +110,7 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
   }
 
 
-  async componentWillMount() {
+  async componentDidMount() {
     const response = await getStorage(this.state.storage_id)
     if (response.status === 200) {
       const check_in = this.state.check_in.set('hour', response.data.opening_hours.split(':')[0]).set('minute', response.data.opening_hours.split(':')[1])
@@ -132,7 +132,7 @@ export class StorageDetail extends Component<StorageDetailProps, StorageDetailSt
         check_out: check_out
       })
     } else {
-      window.location.href = '/'
+      window.location.href = '/not_found'
     }
   }
 

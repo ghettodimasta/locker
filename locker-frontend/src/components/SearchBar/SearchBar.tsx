@@ -8,6 +8,8 @@ export function SearchBar(props: { search_city: string; cities: string[] }) {
   const [filteredCities, setFilteredCities] = useState<string[]>([]);
 
   function search(city: string) {
+    if (city === '')
+      window.location.href = '/not_found';
     window.location.href = '/storages?city=' + city;
   }
 

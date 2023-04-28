@@ -155,7 +155,8 @@ class OrderViewSet(ModelViewSet):
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
 
-    @action(detail=False, methods=['get'], url_path='(?P<storage_id>[^/.]+)')
+
+    @action(detail=False, methods=['get'], url_path='check_pin_code/(?P<storage_id>[^/.]+)')
     @swagger_auto_schema(
         manual_parameters=[
             openapi.Parameter("pin_code", openapi.IN_QUERY, description="pin code", type=openapi.TYPE_STRING,

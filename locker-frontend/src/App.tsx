@@ -31,17 +31,22 @@ import {Register} from "./components/Register/Register";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import Activate from "./components/Activate/Activate";
+import {PageNotFound} from "./components/PageNotFound/PageNotFound";
+import {Main} from "./components/Main/Main";
 
 
 let router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
-      <Route path="/" element={<HomePage/>}/>
+      <Route path="/" element={<Main step="home"/>}/>
       <Route path="/storages" element={<Storage/>}/>
       <Route path="/storages/:id" element={<StorageDetail/>}/>
-      <Route path="/my-orders" element={<MyOrder/>}/>
+      <Route path="/my-orders" element={<Main step="my_orders"/>}/>
       <Route path="/register" element={<Register/>}/>
       <Route path="/activate/:token" element={<Activate/>}/>
+      <Route path="/about" element={<Main step="about"/>}/>
+      <Route path="/not-found" element={<PageNotFound/>}/>
+      <Route path="*" element={<PageNotFound/>}/>
     </Route>
   )
 );

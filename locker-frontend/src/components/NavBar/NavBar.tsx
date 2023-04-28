@@ -110,6 +110,7 @@ class Navbar extends Component<NavbarProps, NavbarState> {
         await this.setState({
           user: undefined
         });
+        window.location.href = '/';
       }
     })
   };

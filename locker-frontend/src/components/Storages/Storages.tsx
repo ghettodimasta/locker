@@ -38,7 +38,10 @@ export class Storage extends Component<StorageProps, StorageState> {
     return urlParams.get('city')
   }
 
-  async componentWillMount() {
+  async componentDidMount() {
+    if (this.state.city === '') {
+      window.location.href = '/not_found'
+    }
     const response = await getStorages(this.state.city)
     if (response.status === 200 && response.data.length > 0) {
       const map = L.map('map', {center: this.state.map_center, zoom: 10, maxZoom: 18, minZoom: 2, inertiaMaxSpeed: 1})
@@ -52,7 +55,7 @@ export class Storage extends Component<StorageProps, StorageState> {
         map: map
       })
     } else {
-      window.location.href = '/'
+      window.location.href = '/not-found'
     }
     // @ts-ignore
   }

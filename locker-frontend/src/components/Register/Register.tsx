@@ -4,6 +4,8 @@ import frame from '../../assets/frame_5.webp'
 import './Register.css'
 import {createUser} from "../../services/api";
 import {alert} from "../NavBar/NavBar";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 
 type RegisterState = {
@@ -37,6 +39,11 @@ export class Register extends Component<RegisterProps, RegisterState> {
     return password_confirmation === password;
   }
 
+  private signUpButtonDisabled() {
+    return !this.validateEmail(this.state.email) || !this.validatePassword(this.state.password, this.state.password_confirmation) || this.state.password === "" || this.state.password_confirmation === "";
+
+  }
+
   private async register() {
     const response = await createUser({
       "email": this.state.email,
@@ -54,8 +61,7 @@ export class Register extends Component<RegisterProps, RegisterState> {
       }).then(() => {
         window.location.href = "/"
       })
-    }
-    else {
+    } else {
       await alert.fire({
         title: 'Error!',
         text: 'Something went wrong, please try again later.',
@@ -94,36 +100,38 @@ export class Register extends Component<RegisterProps, RegisterState> {
                     <label htmlFor="email" className="input-wrap">email</label>
                     <input type="email" className="form-control new-user-input" id="email" aria-describedby="emailHelp"
                            placeholder="email@email.com"
-                            onChange={(e) => {
-                              this.setState({
-                                email: e.target.value
-                              })
-                            }}
+                           onChange={(e) => {
+                             this.setState({
+                               email: e.target.value
+                             })
+                           }}
                     />
                     <label htmlFor="password" className="input-wrap">password</label>
                     <input type="password" className="form-control new-user-input" id="password" placeholder="••••••••"
                            onChange={(e) => {
-                              this.setState({
-                                password: e.target.value
-                              })
+                             this.setState({
+                               password: e.target.value
+                             })
                            }}
                     />
                     <label htmlFor="password" className="input-wrap">confirm password</label>
                     <input type="password" className="form-control new-user-input" id="password" placeholder="••••••••"
-                            onChange={(e) => {
-                              this.setState({
-                                password_confirmation: e.target.value
-                              })
-                            }}
+                           onChange={(e) => {
+                             this.setState({
+                               password_confirmation: e.target.value
+                             })
+                           }}
                     />
                   </div>
-                  <button type="submit" className="btn-sign-up form-control"
+                  <button type="submit" className="btn-sign-up form-control text-lowercase"
                           onClick={async (e) => {
                             e.preventDefault()
                             await this.register()
                           }}
-                          disabled={!this.validateEmail(this.state.email) || !this.validatePassword(this.state.password, this.state.password_confirmation)}
-                  >SIGN UP</button>
+                          disabled={this.signUpButtonDisabled()}
+                  > <span className="text-center">sign up</span>
+                    <span><FontAwesomeIcon icon={faArrowRight} className="ml-2"/></span>
+                  </button>
                 </form>
               </div>
             </div>
